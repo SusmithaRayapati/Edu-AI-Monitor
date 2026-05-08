@@ -1,0 +1,259 @@
+
+<h2 class="sr-only">EduAI Monitor — interactive dashboard mockup with navigation, stat cards, student table, and alerts</h2>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.app { display: flex; height: 600px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; background: var(--color-background-primary); }
+.sidebar { width: 200px; background: hsl(222,47%,11%); flex-shrink: 0; display: flex; flex-direction: column; padding: 16px 0; }
+.sidebar-logo { padding: 0 16px 20px; color: #fff; font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.sidebar-logo i { font-size: 20px; color: hsl(221,83%,60%); }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: hsl(220,14%,70%); cursor: pointer; transition: all 0.15s; border-radius: 0; }
+.nav-item:hover { background: hsl(222,40%,18%); color: #fff; }
+.nav-item.active { background: hsl(222,40%,18%); color: #fff; border-left: 2px solid hsl(221,83%,60%); }
+.nav-item i { font-size: 16px; }
+.nav-section { font-size: 10px; color: hsl(220,9%,46%); padding: 12px 16px 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+.main { flex: 1; overflow-y: auto; background: hsl(220,25%,97%); }
+.topbar { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #B5D4F4; color: #0C447C; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+.content { padding: 20px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 14px; }
+.stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 18px; }
+.stat-icon.blue { background: #E6F1FB; color: #185FA5; }
+.stat-icon.green { background: #EAF3DE; color: #3B6D11; }
+.stat-icon.amber { background: #FAEEDA; color: #854F0B; }
+.stat-icon.red { background: #FCEBEB; color: #A32D2D; }
+.stat-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.stat-label { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.stat-trend { font-size: 11px; margin-top: 4px; }
+.trend-up { color: #3B6D11; } .trend-down { color: #A32D2D; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.card { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { padding: 10px 14px; text-align: left; color: var(--color-text-secondary); font-weight: 500; font-size: 12px; border-bottom: 0.5px solid var(--color-border-tertiary); background: hsl(220,25%,97%); }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: hsl(220,25%,97%); }
+tbody td { padding: 10px 14px; color: var(--color-text-primary); }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+.badge.low { background: #EAF3DE; color: #3B6D11; } .badge.low .badge-dot { background: #639922; }
+.badge.medium { background: #FAEEDA; color: #854F0B; } .badge.medium .badge-dot { background: #BA7517; }
+.badge.high { background: #FAECE7; color: #993C1D; } .badge.high .badge-dot { background: #D85A30; }
+.badge.critical { background: #FCEBEB; color: #A32D2D; } .badge.critical .badge-dot { background: #E24B4A; }
+.badge.blue { background: #E6F1FB; color: #0C447C; }
+.badge.purple { background: #EEEDFE; color: #3C3489; }
+.badge.yellow { background: #FAEEDA; color: #633806; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.chart-bar-wrap { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+.bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.bar-label { width: 80px; color: var(--color-text-secondary); text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 8px; background: hsl(220,14%,94%); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.bar-val { width: 30px; color: var(--color-text-secondary); font-size: 12px; }
+.alert-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.alert-item:last-child { border-bottom: none; }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.alert-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.alert-msg { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.page { display: none; }
+.page.active { display: block; }
+.tab-row { display: flex; gap: 4px; margin-bottom: 14px; }
+.tab { padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 12px; cursor: pointer; color: var(--color-text-secondary); border: 0.5px solid transparent; }
+.tab.active { background: var(--color-background-primary); border-color: var(--color-border-tertiary); color: var(--color-text-primary); font-weight: 500; }
+.rec-card { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 14px; margin-bottom: 10px; }
+.rec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.rec-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.rec-meta { font-size: 12px; color: var(--color-text-secondary); }
+.progress-bar { height: 6px; background: hsl(220,14%,94%); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; border-radius: 3px; background: hsl(221,83%,53%); }
+</style>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo"><i class="ti ti-brain" aria-hidden="true"></i>EduAI Monitor</div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard</div>
+    <div class="nav-item" onclick="showPage('students',this)"><i class="ti ti-users" aria-hidden="true"></i>Students</div>
+    <div class="nav-item" onclick="showPage('analytics',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i>Analytics</div>
+    <div class="nav-item" onclick="showPage('recommendations',this)"><i class="ti ti-bulb" aria-hidden="true"></i>Recommendations</div>
+    <div class="nav-item" onclick="showPage('alerts',this)"><i class="ti ti-bell" aria-hidden="true"></i>Alerts <span style="margin-left:auto;background:#E24B4A;color:#fff;border-radius:999px;font-size:10px;padding:1px 6px;">4</span></div>
+    <div class="nav-section" style="margin-top:auto;">Student View</div>
+    <div class="nav-item" onclick="showPage('student',this)"><i class="ti ti-user" aria-hidden="true"></i>My Dashboard</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="page-title">Dashboard</span>
+      <div class="topbar-actions">
+        <button style="font-size:12px;"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+        <div class="avatar">JD</div>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="ti ti-users" aria-hidden="true"></i></div>
+            <div class="stat-val">248</div>
+            <div class="stat-label">Total students</div>
+            <div class="stat-trend trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i> +12 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+            <div class="stat-val">76%</div>
+            <div class="stat-label">Avg. engagement</div>
+            <div class="stat-trend trend-up"><i class="ti ti-trending-up" aria-hidden="true"></i> +3% vs last week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+            <div class="stat-val">31</div>
+            <div class="stat-label">At-risk students</div>
+            <div class="stat-trend trend-down"><i class="ti ti-trending-down" aria-hidden="true"></i> +5 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="ti ti-urgent" aria-hidden="true"></i></div>
+            <div class="stat-val">4</div>
+            <div class="stat-label">Critical alerts</div>
+            <div class="stat-trend trend-down" style="color:#A32D2D;">Needs attention</div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="section-header"><span class="section-title">Engagement by cluster</span></div>
+            <div class="card">
+              <div class="chart-bar-wrap">
+                <div class="bar-row"><span class="bar-label">High</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:#378ADD;"></div></div><span class="bar-val">68%</span></div>
+                <div class="bar-row"><span class="bar-label">Moderate</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:#7F77DD;"></div></div><span class="bar-val">45%</span></div>
+                <div class="bar-row"><span class="bar-label">Low</span><div class="bar-track"><div class="bar-fill" style="width:28%;background:#BA7517;"></div></div><span class="bar-val">28%</span></div>
+                <div class="bar-row"><span class="bar-label">At Risk</span><div class="bar-track"><div class="bar-fill" style="width:13%;background:#E24B4A;"></div></div><span class="bar-val">13%</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-header"><span class="section-title">Recent alerts</span></div>
+            <div class="card">
+              <div class="alert-item"><div class="alert-dot" style="background:#E24B4A;"></div><div><div class="alert-name">Emma Wilson</div><div class="alert-msg">No logins in 14 days — critical dropout risk</div></div></div>
+              <div class="alert-item"><div class="alert-dot" style="background:#D85A30;"></div><div><div class="alert-name">Carlos Mendes</div><div class="alert-msg">Assignment submissions dropped 60%</div></div></div>
+              <div class="alert-item"><div class="alert-dot" style="background:#BA7517;"></div><div><div class="alert-name">Priya Sharma</div><div class="alert-msg">Quiz scores declining over 3 weeks</div></div></div>
+              <div class="alert-item"><div class="alert-dot" style="background:#BA7517;"></div><div><div class="alert-name">James Park</div><div class="alert-msg">Low forum participation this month</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Students -->
+      <div class="page" id="page-students">
+        <div class="tab-row">
+          <div class="tab active">All students</div>
+          <div class="tab">At risk</div>
+          <div class="tab">High engagement</div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Cluster</th><th>Risk level</th><th>Trend</th><th>Last active</th></tr></thead>
+            <tbody>
+              <tr><td>Emma Wilson</td><td><span class="badge red">At Risk</span></td><td><span class="badge critical"><span class="badge-dot"></span>Critical</span></td><td><span class="badge" style="background:#FCEBEB;color:#A32D2D;">↓ Declining</span></td><td style="color:var(--color-text-secondary)">14 days ago</td></tr>
+              <tr><td>Alex Johnson</td><td><span class="badge blue">High Engagement</span></td><td><span class="badge low"><span class="badge-dot"></span>Low</span></td><td><span class="badge" style="background:#EAF3DE;color:#3B6D11;">↑ Improving</span></td><td style="color:var(--color-text-secondary)">Today</td></tr>
+              <tr><td>Carlos Mendes</td><td><span class="badge yellow">Low Engagement</span></td><td><span class="badge high"><span class="badge-dot"></span>High</span></td><td><span class="badge" style="background:#FCEBEB;color:#A32D2D;">↓ Declining</span></td><td style="color:var(--color-text-secondary)">3 days ago</td></tr>
+              <tr><td>Priya Sharma</td><td><span class="badge purple">Moderate</span></td><td><span class="badge medium"><span class="badge-dot"></span>Medium</span></td><td><span class="badge" style="background:#E6F1FB;color:#0C447C;">→ Stable</span></td><td style="color:var(--color-text-secondary)">Yesterday</td></tr>
+              <tr><td>James Park</td><td><span class="badge purple">Moderate</span></td><td><span class="badge medium"><span class="badge-dot"></span>Medium</span></td><td><span class="badge" style="background:#FCEBEB;color:#A32D2D;">↓ Declining</span></td><td style="color:var(--color-text-secondary)">5 days ago</td></tr>
+              <tr><td>Sara Ahmed</td><td><span class="badge blue">High Engagement</span></td><td><span class="badge low"><span class="badge-dot"></span>Low</span></td><td><span class="badge" style="background:#EAF3DE;color:#3B6D11;">↑ Improving</span></td><td style="color:var(--color-text-secondary)">Today</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="page" id="page-analytics">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon blue"><i class="ti ti-clock" aria-hidden="true"></i></div><div class="stat-val">4.2h</div><div class="stat-label">Avg. time/week</div></div>
+          <div class="stat-card"><div class="stat-icon green"><i class="ti ti-checklist" aria-hidden="true"></i></div><div class="stat-val">83%</div><div class="stat-label">Assignment completion</div></div>
+          <div class="stat-card"><div class="stat-icon amber"><i class="ti ti-message-circle" aria-hidden="true"></i></div><div class="stat-val">2.1</div><div class="stat-label">Forum posts/student</div></div>
+        </div>
+        <div class="section-header" style="margin-top:4px;"><span class="section-title">Weekly engagement trend</span></div>
+        <div class="card" style="padding:14px;">
+          <div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 4px;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#B5D4F4;border-radius:3px 3px 0 0;height:60%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W1</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#85B7EB;border-radius:3px 3px 0 0;height:72%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W2</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#378ADD;border-radius:3px 3px 0 0;height:65%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W3</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#185FA5;border-radius:3px 3px 0 0;height:80%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W4</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#378ADD;border-radius:3px 3px 0 0;height:78%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W5</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="flex:1;width:100%;background:#185FA5;border-radius:3px 3px 0 0;height:85%;"></div><span style="font-size:10px;color:var(--color-text-secondary);">W6</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="page" id="page-recommendations">
+        <div class="rec-card">
+          <div class="rec-header"><span class="rec-title"><i class="ti ti-user" aria-hidden="true" style="margin-right:6px;"></i>Emma Wilson</span><span class="badge critical"><span class="badge-dot"></span>Critical</span></div>
+          <div class="rec-meta">Recommended action: Personal outreach by advisor within 48 hours</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:10%;background:#E24B4A;"></div></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Engagement: 10%</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-header"><span class="rec-title"><i class="ti ti-user" aria-hidden="true" style="margin-right:6px;"></i>Carlos Mendes</span><span class="badge high"><span class="badge-dot"></span>High</span></div>
+          <div class="rec-meta">Recommended action: Send study resources and check-in email</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:35%;background:#D85A30;"></div></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Engagement: 35%</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-header"><span class="rec-title"><i class="ti ti-user" aria-hidden="true" style="margin-right:6px;"></i>Priya Sharma</span><span class="badge medium"><span class="badge-dot"></span>Medium</span></div>
+          <div class="rec-meta">Recommended action: Encourage peer group participation</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:55%;"></div></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Engagement: 55%</div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="page" id="page-alerts">
+        <div class="card">
+          <div class="alert-item"><div class="alert-dot" style="background:#E24B4A;margin-top:6px;"></div><div style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="alert-name">Emma Wilson</span><span class="badge critical" style="font-size:10px;">Critical</span></div><div class="alert-msg">No logins in 14 days — high dropout risk detected by AI model</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">2 hours ago</div></div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:#D85A30;margin-top:6px;"></div><div style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="alert-name">Carlos Mendes</span><span class="badge high" style="font-size:10px;"><span class="badge-dot"></span>High</span></div><div class="alert-msg">Assignment submission rate dropped from 80% to 20% over 2 weeks</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Yesterday</div></div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:#BA7517;margin-top:6px;"></div><div style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="alert-name">Priya Sharma</span><span class="badge medium" style="font-size:10px;"><span class="badge-dot"></span>Medium</span></div><div class="alert-msg">Quiz performance declining for 3 consecutive weeks</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">2 days ago</div></div></div>
+          <div class="alert-item"><div class="alert-dot" style="background:#BA7517;margin-top:6px;"></div><div style="flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="alert-name">James Park</span><span class="badge medium" style="font-size:10px;"><span class="badge-dot"></span>Medium</span></div><div class="alert-msg">Forum participation near zero this month</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">3 days ago</div></div></div>
+        </div>
+      </div>
+
+      <!-- Student view -->
+      <div class="page" id="page-student">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="stat-icon green"><i class="ti ti-flame" aria-hidden="true"></i></div><div class="stat-val">12</div><div class="stat-label">Day streak</div></div>
+          <div class="stat-card"><div class="stat-icon blue"><i class="ti ti-check" aria-hidden="true"></i></div><div class="stat-val">7/9</div><div class="stat-label">Tasks completed</div></div>
+          <div class="stat-card"><div class="stat-icon amber"><i class="ti ti-star" aria-hidden="true"></i></div><div class="stat-val">B+</div><div class="stat-label">Overall grade</div></div>
+        </div>
+        <div class="section-header" style="margin-top:4px;"><span class="section-title">Your recommendations</span></div>
+        <div class="rec-card">
+          <div class="rec-title" style="margin-bottom:6px;"><i class="ti ti-book" aria-hidden="true" style="margin-right:6px;color:hsl(221,83%,53%);"></i>Review Module 4: Data Structures</div>
+          <div class="rec-meta">Your quiz score on this topic was 58%. Revisiting the material is recommended.</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-title" style="margin-bottom:6px;"><i class="ti ti-users" aria-hidden="true" style="margin-right:6px;color:#3B6D11;"></i>Join a study group</div>
+          <div class="rec-meta">Students in study groups show 23% higher engagement scores on average.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const pages = ['dashboard','students','analytics','recommendations','alerts','student'];
+const titles = { dashboard:'Dashboard', students:'Students', analytics:'Analytics', recommendations:'Recommendations', alerts:'Alerts', student:'My Dashboard' };
+function showPage(name, el) {
+  pages.forEach(p => {
+    const pg = document.getElementById('page-'+p);
+    if (pg) pg.classList.toggle('active', p === name);
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = titles[name] || name;
+}
+</script>
